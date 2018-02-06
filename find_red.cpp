@@ -9,9 +9,9 @@
 using namespace cv;
 
 /*
-HÎªÉ«µ÷
-SÎª±¥ºÍ¶È
-VÎªÁÁ¶È
+Hä¸ºè‰²è°ƒ
+Sä¸ºé¥±å’Œåº¦
+Vä¸ºäº®åº¦
 */
 
 #define STEP 5
@@ -20,18 +20,18 @@ VÎªÁÁ¶È
 int main()
 {
 	int fd ;
-    char info[12];
+    	char info[12];
 	CvScalar point;
 	Mat3b bgr, hsv;
 	uchar *p;
 	Mat1b mask1, mask2, mask;
-	int x[4] = {0};//´æ·ÅÉÏÏÂ×óÓÒËÄ¸öµãµÄºá×ø±ê
-	int y[4] = {0};//´æ·ÅÉÏÏÂ×óÓÒËÄ¸öµãµÄ×İ×ø±ê
-	int i, j, count=0,flag=0;//Ò»Ğ©Êı×éÏÂ±êÓëÑ­»·±äÁ¿
+	int x[4] = {0};//å­˜æ”¾ä¸Šä¸‹å·¦å³å››ä¸ªç‚¹çš„æ¨ªåæ ‡
+	int y[4] = {0};//å­˜æ”¾ä¸Šä¸‹å·¦å³å››ä¸ªç‚¹çš„çºµåæ ‡
+	int i, j, count=0,flag=0;//ä¸€äº›æ•°ç»„ä¸‹æ ‡ä¸å¾ªç¯å˜é‡
 
-	//´ò¿ªÉãÏñÍ·
-	VideoCapture cap(0); // open the default camera
-	if (!cap.isOpened())  // check if we succeeded
+	//æ‰“å¼€æ‘„åƒå¤´
+	VideoCapture cap(0); 
+	if (!cap.isOpened()) 
 		return -1;
 	
 	if ((fd = serialOpen ("/dev/ttySAC0", 9600)) < 0)
@@ -50,50 +50,51 @@ int main()
 		cap >> bgr;
 
 		cvtColor(bgr, hsv, COLOR_BGR2HSV);
-
+		
+		//æ»¤å‡º
 		inRange(hsv, Scalar(0, 150, 0), Scalar(10, 255, 255), mask1);
 		inRange(hsv, Scalar(170, 150, 0), Scalar(180, 255, 255), mask2);
 
 		mask = mask1 | mask2;
 
-		//¸¯Ê´
+		//è…èš€
 		erode(mask,mask,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
 		dilate(mask, mask, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
 		
-		//ÅòÕÍ
+		//è†¨èƒ€
 		dilate(mask, mask, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
 		erode(mask, mask, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
 
-		//rowÎª×İ×ø±ê£¬colÎªºá×ø±ê
+		//rowä¸ºçºµåæ ‡ï¼Œcolä¸ºæ¨ªåæ ‡
 		for(i = 1; i < mask.rows ; i += STEP)
 		{
 			p = mask.ptr<uchar>(i);
 
-			//´ÓÉÏµ½ÏÂÉ¨Ãè,¼Ç×¡×îÉÏÃæµÄÏñËØµã
+			//ä»ä¸Šåˆ°ä¸‹æ‰«æ,è®°ä½æœ€ä¸Šé¢çš„åƒç´ ç‚¹
 			for (j = 1; j < mask.cols; j ++)
 			{
 				if (*(p+j)>128)
 				{
-					count++;//¼ÇÂ¼Á¬ĞøµãÊı
-					if (count > CONTINUES)//¼ì²âµ½ÎªÉÏ²¿µÚÒ»¸öºìÉ«µã
+					count++;//è®°å½•è¿ç»­ç‚¹æ•°
+					if (count > CONTINUES)//æ£€æµ‹åˆ°ä¸ºä¸Šéƒ¨ç¬¬ä¸€ä¸ªçº¢è‰²ç‚¹
 					{
-						x[0] = j;//¼ÇÂ¼ºá×ø±ê
-						y[0] = i;//¼ÇÂ¼×İ×ø±ê
+						x[0] = j;//è®°å½•æ¨ªåæ ‡
+						y[0] = i;//è®°å½•çºµåæ ‡
 					}
 				}
 
-				//Ò»µ©³öÏÖºÚµã
+				//ä¸€æ—¦å‡ºç°é»‘ç‚¹
 				if (*(p + j) < 128)
-					count = 0;//Çå³ıÁ¬ĞøµãÊı
+					count = 0;//æ¸…é™¤è¿ç»­ç‚¹æ•°
 
 				if (count>CONTINUES)
-					break;//ÉÏµãÕÒµ½£¬Ìø³ö´ËÑ­»·
+					break;//ä¸Šç‚¹æ‰¾åˆ°ï¼Œè·³å‡ºæ­¤å¾ªç¯
 			}
 
 			if (count>CONTINUES)
 			{
 				count = 0;
-				break;//ÉÏµãÕÒµ½£¬Ìø³ö´ËÑ­»·
+				break;//ä¸Šç‚¹æ‰¾åˆ°ï¼Œè·³å‡ºæ­¤å¾ªç¯
 			}
 		}
 
@@ -105,25 +106,25 @@ int main()
 			{
 				if (*(p + j) > 128)
 				{
-					count++;//¼ÇÂ¼Á¬ĞøµãÊı
+					count++;//è®°å½•è¿ç»­ç‚¹æ•°
 					if (count > CONTINUES)
 					{
-						x[1] = j;//¼ÇÂ¼ºá×ø±ê
-						y[1] = i;//¼ÇÂ¼×İ×ø±ê
+						x[1] = j;//è®°å½•æ¨ªåæ ‡
+						y[1] = i;//è®°å½•çºµåæ ‡
 					}
 				}
 
-				//Ò»µ©³öÏÖºÚµã
+				//ä¸€æ—¦å‡ºç°é»‘ç‚¹
 				if (*(p + j) < 128)
-					count = 0;//Çå³ıÁ¬ĞøµãÊı
+					count = 0;//æ¸…é™¤è¿ç»­ç‚¹æ•°
 
 				if (count>CONTINUES)
-					break;//ÏÂµãÕÒµ½£¬Ìø³ö´ËÑ­»·
+					break;//ä¸‹ç‚¹æ‰¾åˆ°ï¼Œè·³å‡ºæ­¤å¾ªç¯
 			}
 			if (count>CONTINUES)
 			{
 				count = 0;
-				break;//ÉÏÏÂµã¶¼ÕÒµ½£¬Ìø³ö´ËÑ­»·
+				break;//ä¸Šä¸‹ç‚¹éƒ½æ‰¾åˆ°ï¼Œè·³å‡ºæ­¤å¾ªç¯
 			}
 		}
 		
